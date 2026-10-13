@@ -22,7 +22,11 @@ pipeline {
         stage("deploy") {
             steps {
                 script {
-                    echo "Deploying the application..."
+                    def dockerCmd = "docker run -d -p 3080:3080 tchamrss/react-nodejs-example:1.0"
+                    sshagent(credentials: ['ec2-server-key']) {
+                        sh "ssh -o StrictHostKeyChecking=no ec2-user@56.228.22.129 ${dockerCmd}"
+
+                    }
                 }
             }
         }               
