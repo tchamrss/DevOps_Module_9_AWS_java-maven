@@ -58,16 +58,30 @@ pipeline {
                 }
             }               
         }
-        stage('commit version update'){
+        stage('commit version update') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'git-credential', passwordVariable: 'PASS', usernameVariable: 'USER')]){
-                        sh 'git config --global user.email "jenkins@example.com"'
-                        sh 'git config --global user.name "jenkins"'
-                        sh 'git remote set-url origin https://$USER:$PASS@github.com/tchamrss/DevOps_Module_9_AWS_java-maven.git'
-                        sh 'git add .'
-                        sh 'git commit -m "ci: version bump"'
-                        sh 'git push origin HEAD:jenkins-jobs'
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'git-push-credential',
+                            usernameVariable: 'GIT_USER',
+                            passwordVariable: 'GIT_TOKEN'
+                        )
+                    ]) {
+                        sh '''
+                            set +x
+                            git add pom.xml .gitignore
+
+                            if ! git diff --cached --quiet; then
+                                git -c user.name="Jenkins" \
+                                    -c user.email="jenkins@localhost" \
+                                    commit -m "ci: version bump"
+                            fi
+
+                            AUTH=$(printf '%s:%s' "$GIT_USER" "$GIT_TOKEN" | base64 | tr -d '\\n')
+                            git -c http.extraheader="AUTHORIZATION: basic $AUTH" \
+                                push origin HEAD:jenkins-jobs
+                        '''
                     }
                 }
             }
