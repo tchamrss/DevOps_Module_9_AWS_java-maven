@@ -3,7 +3,7 @@
 library identifier: 'jenkins-shared-library-aws@master', retriever: modernSCM(
     [$class: 'GitSCMSource',
     remote: 'https://github.com/tchamrss/jenkins-shared-library-aws.git',
-    credentialsID: 'git-credential'
+    credentialsId: 'git-credential'
     ]
 )
 
