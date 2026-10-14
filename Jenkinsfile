@@ -1,9 +1,9 @@
 #!/usr/bin/env groovy
 
-library identifier: 'jenkins-shared-library@master', retriever: modernSCM(
+library identifier: 'jenkins-shared-library-aws@master', retriever: modernSCM(
     [$class: 'GitSCMSource',
-    remote: 'https://gitlab.com/twn-devops-bootcamp/latest/09-aws/jenkins-shared-library.git',
-    credentialsID: 'gitlab-credentials'
+    remote: 'https://github.com/tchamrss/jenkins-shared-library-aws.git',
+    credentialsID: 'git-credential'
     ]
 )
 
@@ -48,7 +48,7 @@ pipeline {
                     echo 'deploying docker image to EC2...'
 
                     def shellCmd = "bash ./server-cmds.sh ${IMAGE_NAME}"
-                    def ec2Instance = "ec2-user@18.184.54.160"
+                    def ec2Instance = "ec2-user@56.228.22.129"
 
                     sshagent(['ec2-server-key']) {
                         sh "scp server-cmds.sh ${ec2Instance}:/home/ec2-user"
@@ -61,8 +61,8 @@ pipeline {
         stage('commit version update'){
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'gitlab-credentials', passwordVariable: 'PASS', usernameVariable: 'USER')]){
-                        sh 'git remote set-url origin https://$USER:$PASS@gitlab.com/twn-devops-bootcamp/latest/09-AWS/java-maven-app.git'
+                    withCredentials([usernamePassword(credentialsId: 'git-credential', passwordVariable: 'PASS', usernameVariable: 'USER')]){
+                        sh 'git remote set-url origin https://$USER:$PASS@github.com/tchamrss/DevOps_Module_9_AWS_java-maven.git'
                         sh 'git add .'
                         sh 'git commit -m "ci: version bump"'
                         sh 'git push origin HEAD:jenkins-jobs'
